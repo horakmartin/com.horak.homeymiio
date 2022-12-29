@@ -1,10 +1,10 @@
 {
-  "id": "com.horak.HomeyMiIO",
+  "id": "com.horak.HomeyMiiot",
   "version": "1.0.0",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
-    "en": "Mi Homey"
+    "en": "Homey Miiot"
   },
   "tags": {
     "en": [
@@ -47,10 +47,10 @@
     }
   },
   "bugs": {
-    "url": "https://github.com/horakmar/com.horakmar.HomeyMiIO/issues"
+    "url": "https://github.com/horakmar/com.horakmar.HomeyMiiot/issues"
   },
   "homeyCommunityTopicId": 19816,
-  "source": "https://github.com/horakmar/com.horakmar.HomeyMiIO",
-  "homepage": "https://github.com/horakmar/com.horakmar.HomeyMiIO",
+  "source": "https://github.com/horakmar/com.horakmar.HomeyMiiot",
+  "homepage": "https://github.com/horakmar/com.horakmar.HomeyMiiot",
   "support": "mailto:horakmar@gmail.com"
 }
