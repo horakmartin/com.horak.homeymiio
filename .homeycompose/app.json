@@ -1,0 +1,56 @@
+{
+  "id": "com.horak.HomeyMiIO",
+  "version": "1.0.0",
+  "compatibility": ">=2.0.0",
+  "sdk": 2,
+  "name": {
+    "en": "Mi Homey"
+  },
+  "tags": {
+    "en": [
+      "mihomey",
+      "mi",
+      "Xiaomi",
+      "gateway",
+      "mi hub"
+    ]
+  },
+  "description": {
+    "en": "Control Xiaomi devices from Homey. This is lite continue of Maxmudjon's work."
+  },
+  "category": [
+    "tools"
+  ],
+  "brandColor": "#FF6700",
+  "permissions": [],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "Martin Horak",
+    "email": "horakmar@gmail.com"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Martin Horak",
+        "email": "horakmar@gmail.com"
+      }
+    ]
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "horakmar"
+      }
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/horakmar/com.horakmar.HomeyMiIO/issues"
+  },
+  "homeyCommunityTopicId": 19816,
+  "source": "https://github.com/horakmar/com.horakmar.HomeyMiIO",
+  "homepage": "https://github.com/horakmar/com.horakmar.HomeyMiIO",
+  "support": "mailto:horakmar@gmail.com"
+}
