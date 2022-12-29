@@ -2,10 +2,8 @@ const Homey = require("homey");
 const miio = require("miio");
 
 class XiaoMiHumidifier2Lite extends Homey.Driver {
-  onInit() {
-    this.actions = {
-      fanLevel: new Homey.FlowCardAction("deerma_humidifier_jsq5_fan_level").register(),
-    };
+  async onInit() {
+    const fanLevel = this.flow.getCard("deerma_humidifier_jsq5_fan_level");
   }
 
   onPair(socket) {
