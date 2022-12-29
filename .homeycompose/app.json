@@ -1,7 +1,7 @@
 {
   "id": "com.horak.HomeyMiiot",
   "version": "1.0.0",
-  "compatibility": ">=2.0.0",
+  "compatibility": ">=3.0.0",
   "sdk": 2,
   "name": {
     "en": "Homey Miiot"
@@ -52,5 +52,8 @@
   "homeyCommunityTopicId": 19816,
   "source": "https://github.com/horakmar/com.horakmar.HomeyMiiot",
   "homepage": "https://github.com/horakmar/com.horakmar.HomeyMiiot",
-  "support": "mailto:horakmar@gmail.com"
+  "support": "mailto:horakmar@gmail.com",
+  "platforms": [
+    "local"
+  ]
 }
