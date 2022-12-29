@@ -4,16 +4,13 @@ const miio = require("miio");
 class MiAirPurifier4Lite extends Homey.Driver {
   onInit() {
     this.actions = {
-      purifierOn: new Homey.FlowCardAction("purifier_on").register(),
-      purifierOff: new Homey.FlowCardAction("purifier_off").register(),
-      purifierMode: new Homey.FlowCardAction("purifier_mode").register(),
-      purifierSpeed: new Homey.FlowCardAction("purifier_speed").register(),
+      airPurifierMode: new Homey.FlowCardAction("zhimi_airpurifier_mb4_mode").register(),
     };
   }
 
   onPair(socket) {
     let pairingDevice = {};
-    pairingDevice.name = "Mi Air Purifier 4 Lite";
+    pairingDevice.name = "Xiaomi Smart Air Purifier 4 Lite";
     pairingDevice.settings = {};
     pairingDevice.data = {};
 
@@ -26,29 +23,34 @@ class MiAirPurifier4Lite extends Homey.Driver {
             .call("miIO.info", [])
             .then((value) => {
               if (value.model == this.data.model) {
-                pairingDevice.data.id = "MA:PP:RO:" + value.mac + ":MA:PP:RO";
+                pairingDevice.data.id = value.mac;
+                const params = [{ siid: 2, piid: 1 }];
                 device
-                  .call("get_prop", ["power"])
-                  .then((value) => {
-                    let result = {
-                      state: value[0],
-                    };
-                    pairingDevice.settings.deviceIP = this.data.ip;
-                    pairingDevice.settings.deviceToken = this.data.token;
-                    if (this.data.timer < 5) {
-                      pairingDevice.settings.updateTimer = 5;
-                    } else if (this.data.timer > 3600) {
-                      pairingDevice.settings.updateTimer = 3600;
-                    } else {
-                      pairingDevice.settings.updateTimer = parseInt(this.data.timer);
-                    }
+                  .call("get_properties", params, {
+                    retries: 1,
+                  })
+                  .then((result) => {
+                    if (result && result[0].code === 0) {
+                      let resultData = {
+                        state: result[0],
+                      };
+                      pairingDevice.settings.deviceIP = this.data.ip;
+                      pairingDevice.settings.deviceToken = this.data.token;
+                      if (this.data.timer < 5) {
+                        pairingDevice.settings.updateTimer = 5;
+                      } else if (this.data.timer > 3600) {
+                        pairingDevice.settings.updateTimer = 3600;
+                      } else {
+                        pairingDevice.settings.updateTimer = parseInt(this.data.timer);
+                      }
 
-                    callback(null, result);
+                      callback(null, resultData);
+                    }
                   })
                   .catch((error) => callback(null, error));
               } else {
                 let result = {
-                  notDevice: "It is not Mi Air Purifier Pro",
+                  notDevice: "It is not Xiaomi Smart Air Purifier 4 Lite",
                 };
                 pairingDevice.data.id = null;
                 callback(null, result);

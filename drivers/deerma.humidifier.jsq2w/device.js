@@ -2,21 +2,18 @@ const Homey = require("homey");
 const miio = require("miio");
 
 const params = [
-  { siid: 2, piid: 1 }, //status - bool
-  { siid: 2, piid: 2 }, //fault - uint8
-  { siid: 2, piid: 3 }, //mode - uint8
-  { siid: 2, piid: 6 }, //target humidity - uint8
-  { siid: 3, piid: 1 }, //humidity - uint8
-  { siid: 8, piid: 1 }, //water level - uint8
-  { siid: 8, piid: 6 }, //screen brightness - uint8
+  { siid: 2, piid: 1 },
+  { siid: 2, piid: 2 },
+  { siid: 2, piid: 5 },
+  { siid: 2, piid: 6 },
+  { siid: 3, piid: 1 },
+  { siid: 3, piid: 7 },
+  { siid: 5, piid: 1 },
+  { siid: 6, piid: 1 },
 ];
 
 class XiaoMiHumidifier2Lite extends Homey.Device {
   async onInit() {
-    if (process.env.DEBUG === '1') {
-			require('inspector').open(9222, '0.0.0.0', true);
-		}
-
     this.initialize = this.initialize.bind(this);
     this.driver = this.getDriver();
     this.data = this.getData();
@@ -32,53 +29,47 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
 
   registerActions() {
     const { actions } = this.driver;
-    this.registerHumidifierOnAction("humidifier_on", actions.humidifierOn);
-    this.registerHumidifierOffAction("humidifier_off", actions.humidifierOff);
-    this.registerHumidifierModeAction("humidifier_pro_mode", actions.humidifierMode);
-    this.registerHumidifierSpeedAction("humidifier_pro_speed", actions.humidifierSpeed);
+    this.registerFanLevelAction("deerma_humidifier_jsq5_fan_level", actions.fanLevel);
   }
 
   registerCapabilities() {
     this.registerOnOffButton("onoff");
-    this.registerFavoriteLevel("dim");
-    this.registerHumidifierMode("leshow_humidifier_jsq1_mode");
+    this.registerTargetRelativeHumidity("dim");
+    this.registerFanLevel("deerma_humidifier_jsq5_fan_level");
   }
 
   getHumidifierStatus() {
     miio
-      .device({
-        address: this.getSetting("deviceIP"),
-        token: this.getSetting("deviceToken"),
-      })
+      .device({ address: this.getSetting("deviceIP"), token: this.getSetting("deviceToken") })
       .then((device) => {
         if (!this.getAvailable()) {
           this.setAvailable();
         }
-
         this.device = device;
 
         this.device
-          .call("get_properties", params, {
-            retries: 1,
-          })
+          .call("get_properties", params, { retries: 1 })
           .then((result) => {
-            this.log(result);
+            const powerResult = result.filter((r) => r.siid == 2 && r.piid == 1)[0];
             const deviceFaultResult = result.filter((r) => r.siid == 2 && r.piid == 2)[0];
-            const deviceStatusResult = result.filter((r) => r.siid == 2 && r.piid == 1)[0];
-            const deviceModeResult = result.filter((r) => r.siid == 2 && r.piid == 3)[0];
+            const deviceFanLevelResult = result.filter((r) => r.siid == 2 && r.piid == 5)[0];
             const deviceTargetHumidityResult = result.filter((r) => r.siid == 2 && r.piid == 6)[0];
+            const deviceTemperatureResult = result.filter((r) => r.siid == 3 && r.piid == 7)[0];
             const deviceHumidityResult = result.filter((r) => r.siid == 3 && r.piid == 1)[0];
-            const deviceWaterLevelResult = result.filter((r) => r.siid == 8 && r.piid == 1)[0];
-            const deviceLedResult = result.filter((r) => r.siid == 8 && r.piid == 6)[0];
+            const deviceBuzzerResult = result.filter((r) => r.siid == 5 && r.piid == 1)[0];
+            const deviceLedBrightnessResult = result.filter((r) => r.siid == 6 && r.piid == 1)[0];
 
-            this.updateCapabilityValue("onoff", deviceStatusResult.value);
+            this.updateCapabilityValue("onoff", powerResult.value);
+            this.updateCapabilityValue("deerma_humidifier_jsq5_fan_level", "" + deviceFanLevelResult.value);
+            this.updateCapabilityValue("dim", +deviceTargetHumidityResult.value);
             this.updateCapabilityValue("measure_humidity", +deviceHumidityResult.value);
-            this.updateCapabilityValue("leshow_humidifier_jsq1_mode", "" + deviceModeResult.value);
-            this.updateCapabilityValue("dim", deviceTargetHumidityResult.value);
-            this.updateCapabilityValue("measure_water", deviceWaterLevelResult.value);
-            this.setSettings({ led: !!deviceLedResult.value });
+            this.updateCapabilityValue("measure_temperature", +deviceTemperatureResult.value);
+            this.updateCapabilityValue("alarm_water", +deviceFaultResult.value != 0);
+
+            this.setSettings({ led: !!deviceLedBrightnessResult.value });
+            this.setSettings({ buzzer: deviceBuzzerResult.value });
           })
-          .catch((error) => this.log("Sending commmand 'get_prop' error: ", error));
+          .catch((error) => this.log("Sending commmand 'get_properties' error: ", error));
 
         const update = this.getSetting("updateTimer") || 60;
         this.updateTimer(update);
@@ -96,24 +87,29 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
     clearInterval(this.updateInterval);
     this.updateInterval = setInterval(() => {
       this.device
-        .call("get_properties", params, {
-          retries: 1,
-        })
+        .call("get_properties", params, { retries: 1 })
         .then((result) => {
+          if (!this.getAvailable()) {
+            this.setAvailable();
+          }
+          const powerResult = result.filter((r) => r.siid == 2 && r.piid == 1)[0];
           const deviceFaultResult = result.filter((r) => r.siid == 2 && r.piid == 2)[0];
-          const deviceStatusResult = result.filter((r) => r.siid == 2 && r.piid == 1)[0];
-          const deviceModeResult = result.filter((r) => r.siid == 2 && r.piid == 3)[0];
+          const deviceFanLevelResult = result.filter((r) => r.siid == 2 && r.piid == 5)[0];
           const deviceTargetHumidityResult = result.filter((r) => r.siid == 2 && r.piid == 6)[0];
+          const deviceTemperatureResult = result.filter((r) => r.siid == 3 && r.piid == 7)[0];
           const deviceHumidityResult = result.filter((r) => r.siid == 3 && r.piid == 1)[0];
-          const deviceWaterLevelResult = result.filter((r) => r.siid == 8 && r.piid == 1)[0];
-          const deviceLedResult = result.filter((r) => r.siid == 8 && r.piid == 6)[0];
+          const deviceBuzzerResult = result.filter((r) => r.siid == 5 && r.piid == 1)[0];
+          const deviceLedBrightnessResult = result.filter((r) => r.siid == 6 && r.piid == 1)[0];
 
-          this.updateCapabilityValue("onoff", deviceStatusResult.value);
+          this.updateCapabilityValue("onoff", powerResult.value);
+          this.updateCapabilityValue("deerma_humidifier_jsq5_fan_level", "" + deviceFanLevelResult.value);
+          this.updateCapabilityValue("dim", +deviceTargetHumidityResult.value);
           this.updateCapabilityValue("measure_humidity", +deviceHumidityResult.value);
-          this.updateCapabilityValue("leshow_humidifier_jsq1_mode", "" + deviceModeResult.value);
-          this.updateCapabilityValue("dim", deviceTargetHumidityResult.value);
-          this.updateCapabilityValue("measure_water", deviceWaterLevelResult.value);
-          this.setSettings({ led: !!deviceLedResult.value });
+          this.updateCapabilityValue("measure_temperature", +deviceTemperatureResult.value);
+          this.updateCapabilityValue("alarm_water", +deviceFaultResult.value != 0);
+
+          this.setSettings({ led: !!deviceLedBrightnessResult.value });
+          this.setSettings({ buzzer: deviceBuzzerResult.value });
         })
         .catch((error) => {
           this.log("Sending commmand error: ", error);
@@ -126,14 +122,14 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
     }, 1000 * interval);
   }
 
-  updateCapabilityValue(name, value) {
-    if (this.getCapabilityValue(name) != value) {
-      this.setCapabilityValue(name, value)
+  updateCapabilityValue(capabilityName, value) {
+    if (this.getCapabilityValue(capabilityName) != value) {
+      this.setCapabilityValue(capabilityName, value)
         .then(() => {
-          this.log("[" + this.data.id + "] [" + name + "] [" + value + "] Capability successfully updated -");
+          this.log("[" + this.data.id + "] [" + capabilityName + "] [" + value + "] Capability successfully updated");
         })
         .catch((error) => {
-          this.log("[" + this.data.id + "] [" + name + "] [" + value + "] Capability not updated because there are errors: " + error.message);
+          this.log("[" + this.data.id + "] [" + capabilityName + "] [" + value + "] Capability not updated because there are errors: " + error.message);
         });
     }
   }
@@ -145,11 +141,23 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
     }
 
     if (changedKeys.includes("led")) {
-      const params = [{ siid: 8, piid: 6, value: newSettings.led ? 1 : 0 }];
       this.device
-        .call("set_properties", params, { retries: 1 })
+        .call("set_properties", [{ siid: 6, piid: 1, value: newSettings.led }], { retries: 1 })
         .then(() => {
           this.log("Sending " + this.getName() + " commmand: " + newSettings.led);
+          callback(null, true);
+        })
+        .catch((error) => {
+          this.log("Sending commmand 'set_properties' error: ", error);
+          callback(error, false);
+        });
+    }
+
+    if (changedKeys.includes("buzzer")) {
+      this.device
+        .call("set_properties", [{ siid: 5, piid: 1, value: newSettings.buzzer }], { retries: 1 })
+        .then(() => {
+          this.log("Sending " + this.getName() + " commmand: " + newSettings.buzzer);
           callback(null, true);
         })
         .catch((error) => {
@@ -161,36 +169,34 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
 
   registerOnOffButton(name) {
     this.registerCapabilityListener(name, async (value) => {
-      const params = [{ siid: 2, piid: 1, value }];
       this.device
-        .call("set_properties", params, { retries: 1 })
+        .call("set_properties", [{ siid: 2, piid: 1, value }], { retries: 1 })
         .then(() => this.log("Sending " + name + " commmand: " + value))
         .catch((error) => this.log("Sending commmand 'set_properties' error: ", error));
     });
   }
 
-  registerFavoriteLevel(name) {
+  registerTargetRelativeHumidity(name) {
     this.registerCapabilityListener(name, async (value) => {
-      const params = [{ siid: 2, piid: 6, value }];
+      let humidity = value * 100;
+
       this.device
-        .call("set_properties", params, { retries: 1 })
+        .call("set_properties", [{ siid: 2, piid: 6, value: humidity }], { retries: 1 })
         .then(() => this.log("Sending " + name + " commmand: " + value))
         .catch((error) => this.log("Sending commmand 'set_properties' error: ", error));
     });
   }
 
-  registerHumidifierMode(name) {
+  registerFanLevel(name) {
     this.registerCapabilityListener(name, async (value) => {
-      const params = [{ siid: 2, piid: 3, value: +value }];
-
       this.device
-        .call("set_properties", params, { retries: 1 })
+        .call("set_properties", [{ siid: 2, piid: 5, value: +value }], { retries: 1 })
         .then(() => this.log("Sending " + name + " commmand: " + value))
         .catch((error) => this.log("Sending commmand 'set_properties' error: ", error));
     });
   }
 
-  registerHumidifierOnAction(name, action) {
+  registerFanLevelAction(name, action) {
     action.registerRunListener(async (args, state) => {
       try {
         miio
@@ -199,105 +205,14 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
             token: args.device.getSetting("deviceToken"),
           })
           .then((device) => {
-            const params = [{ siid: 2, piid: 1, value: true }];
             device
-              .call("set_properties", params, { retries: 1 })
-              .then(() => {
-                this.log("Set 'set_properties' ON");
-                device.destroy();
-              })
-              .catch((error) => {
-                this.log("Set 'set_properties' error: ", error);
-                device.destroy();
-              });
-          })
-          .catch((error) => {
-            this.log("miio connect error: " + error);
-          });
-      } catch (error) {
-        this.log("catch error: " + error);
-      }
-    });
-  }
-
-  registerHumidifierOffAction(name, action) {
-    action.registerRunListener(async (args, state) => {
-      try {
-        miio
-          .device({
-            address: args.device.getSetting("deviceIP"),
-            token: args.device.getSetting("deviceToken"),
-          })
-          .then((device) => {
-            const params = [{ siid: 2, piid: 1, value: false }];
-            device
-              .call("set_properties", params, { retries: 1 })
-              .then(() => {
-                this.log("Set 'set_properties' OFF");
-                device.destroy();
-              })
-              .catch((error) => {
-                this.log("Set 'set_properties' error: ", error);
-                device.destroy();
-              });
-          })
-          .catch((error) => {
-            this.log("miio connect error: " + error);
-          });
-      } catch (error) {
-        this.log("catch error: " + error);
-      }
-    });
-  }
-
-  registerHumidifierModeAction(name, action) {
-    action.registerRunListener(async (args, state) => {
-      try {
-        miio
-          .device({
-            address: args.device.getSetting("deviceIP"),
-            token: args.device.getSetting("deviceToken"),
-          })
-          .then((device) => {
-            const params = [{ siid: 2, piid: 3, value: args.modes }];
-            device
-              .call("set_properties", params, { retries: 1 })
+              .call("set_properties", [{ siid: 2, piid: 5, value: +args.modes }], { retries: 1 })
               .then(() => {
                 this.log("Set 'set_properties': ", args.modes);
                 device.destroy();
               })
               .catch((error) => {
-                this.log("Set 'set_properties' error: ", error);
-                device.destroy();
-              });
-          })
-          .catch((error) => {
-            this.log("miio connect error: " + error);
-          });
-      } catch (error) {
-        this.log("catch error: " + error);
-      }
-    });
-  }
-
-  registerHumidifierSpeedAction(name, action) {
-    action.registerRunListener(async (args, state) => {
-      try {
-        miio
-          .device({
-            address: args.device.getSetting("deviceIP"),
-            token: args.device.getSetting("deviceToken"),
-          })
-          .then((device) => {
-            const params = [{ siid: 2, piid: 6, value: +args.range }];
-            device
-              .call("set_properties", params, { retries: 1 })
-              .then(() => {
-                this.log("Set 'set_properties': ", args.range);
-                device.destroy();
-              })
-              .catch((error) => {
-                this.log("Set 'set_properties' error: ", error);
+                this.log("Set 'set_properties' error: ", error.message);
                 device.destroy();
               });
           })

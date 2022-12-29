@@ -6,11 +6,10 @@
   "capabilities": [
     "onoff",
     "dim",
-    "air_purifier_mode",
-    "measure_temperature",
-    "measure_humidity",
+    "zhimi_airpurifier_mb4_mode",
     "measure_pm25",
-    "measure_luminance"
+    "measure_temperature",
+    "measure_humidity"
   ],
   "capabilitiesOptions": {
     "onoff": {
@@ -20,8 +19,10 @@
     },
     "dim": {
       "title": {
-        "en": "Speed"
-      }
+        "en": "Favorite speed"
+      },
+      "max": 14,
+      "min": 0
     }
   },
   "settings": [
@@ -76,11 +77,11 @@
           }
         },
         {
-          "id": "volume",
+          "id": "buzzer",
           "type": "checkbox",
           "value": true,
           "label": {
-            "en": "Volume"
+            "en": "Buzzer"
           }
         },
         {
@@ -90,29 +91,13 @@
           "label": {
             "en": "Child Lock"
           }
-        },
-        {
-          "id": "filter1_life",
-          "type": "label",
-          "label": {
-            "en": "Filter life"
-          },
-          "value": "0%"
-        },
-        {
-          "id": "purify_volume",
-          "type": "label",
-          "label": {
-            "en": "Air Cleared (m3)"
-          },
-          "value": "0"
         }
       ]
     }
   ],
   "images": {
-    "large": "/drivers/zhimi.airp.rmb1/assets/images/large.png",
-    "small": "/drivers/zhimi.airp.rmb1/assets/images/small.png"
+    "large": "/drivers/zhimi.airpurifier.rmb1/assets/images/large.png",
+    "small": "/drivers/zhimi.airpurifier.rmb1/assets/images/small.png"
   },
   "pair": [
     {

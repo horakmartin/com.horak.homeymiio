@@ -1,13 +1,31 @@
 const Homey = require("homey");
 const miio = require("miio");
 
+
+//https://home.miot-spec.com/spec?type=urn%3Amiot-spec-v2%3Adevice%3Aair-purifier%3A0000A007%3Azhimi-rmb1%3A1
+
+const params = [
+  { siid: 2, piid: 1 }, //on off
+  { siid: 2, piid: 2 }, //fault
+  { siid: 2, piid: 4 }, //mode
+  { siid: 3, piid: 4 }, //pm2.5
+  { siid: 3, piid: 7 }, //temperature
+  { siid: 3, piid: 1 }, //% filter life level
+  { siid: 6, piid: 1 }, //alarm
+  { siid: 13, piid: 2 }, //screen brightness // 0,1,2
+  { siid: 8, piid: 1 }, //kid lock
+  { siid: 9, piid: 11 }, //fan level (0 - 2500)
+];
+
 class MiAirPurifier4Lite extends Homey.Device {
   async onInit() {
+    if (process.env.DEBUG === '1') {
+			require('inspector').open(9222, '0.0.0.0', true);
+		}
+
     this.initialize = this.initialize.bind(this);
     this.driver = this.getDriver();
     this.data = this.getData();
-    this.favoriteLevel = [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 95, 100];
-    this.updateInterval;
     this.initialize();
     this.log("Mi Homey device init | name: " + this.getName() + " - class: " + this.getClass() + " - data: " + JSON.stringify(this.data));
   }
@@ -15,24 +33,21 @@ class MiAirPurifier4Lite extends Homey.Device {
   async initialize() {
     this.registerActions();
     this.registerCapabilities();
-    this.getPurifierStatus();
+    this.getAirPurifierStatus();
   }
 
   registerActions() {
     const { actions } = this.driver;
-    this.registerPurifierOnAction("purifier_on", actions.purifierOn);
-    this.registerPurifierOffAction("purifier_off", actions.purifierOff);
-    this.registerPurifierModeAction("purifier_mode", actions.purifierMode);
-    this.registerPurifierSpeedAction("purifier_speed", actions.purifierSpeed);
+    this.registerAirPurifierModeAction("zhimi_airpurifier_mb4_mode", actions.airPurifierMode);
   }
 
   registerCapabilities() {
     this.registerOnOffButton("onoff");
-    this.registerFavoriteLevel("dim");
-    this.registerAirPurifierMode("air_purifier_mode");
+    this.registerFavoriteFanLevel("dim");
+    this.registerAirPurifierMode("zhimi_airpurifier_mb4_mode");
   }
 
-  getPurifierStatus() {
+  getAirPurifierStatus() {
     miio
       .device({ address: this.getSetting("deviceIP"), token: this.getSetting("deviceToken") })
       .then((device) => {
@@ -42,24 +57,31 @@ class MiAirPurifier4Lite extends Homey.Device {
         this.device = device;
 
         this.device
-          .call("get_prop", ["power", "aqi", "average_aqi", "humidity", "temp_dec", "bright", "mode", "favorite_level", "filter1_life", "use_time", "purify_volume", "led", "volume", "child_lock"])
+          .call("get_properties", params, { retries: 1 })
           .then((result) => {
-            this.updateCapabilityValue("onoff", result[0] === "on" ? true : false);
-            this.updateCapabilityValue("measure_pm25", parseInt(result[1]));
-            this.updateCapabilityValue("measure_humidity", parseInt(result[3]));
-            this.updateCapabilityValue("measure_temperature", parseInt(result[4] / 10));
-            this.updateCapabilityValue("measure_luminance", parseInt(result[5]));
-            this.updateCapabilityValue("air_purifier_mode", result[6]);
-            this.updateCapabilityValue("dim", parseInt(this.favoriteLevel[result[7]] / 100));
-            this.setSettings({ filter1_life: result[8] + "%" });
-            this.setSettings({ purify_volume: result[10] + " m3" });
-            this.setSettings({ led: result[11] == "on" ? true : false });
-            this.setSettings({ volume: result[12] >= 1 ? true : false });
-            this.setSettings({ childLock: result[13] == "on" ? true : false });
+            const powerResult = result.filter((r) => r.siid == 2 && r.piid == 1)[0];
+            const deviceFaultResult = result.filter((r) => r.siid == 2 && r.piid == 2)[0];
+            const deviceModeResult = result.filter((r) => r.siid == 2 && r.piid == 4)[0];
+            const deviceFanLevelResult = result.filter((r) => r.siid == 9 && r.piid == 11)[0];
+            const devicePM25Result = result.filter((r) => r.siid == 3 && r.piid == 4)[0];
+            const deviceHumidityResult = result.filter((r) => r.siid == 3 && r.piid == 1)[0];
+            const deviceTemperatureResult = result.filter((r) => r.siid == 3 && r.piid == 7)[0];
+            const deviceBuzzerResult = result.filter((r) => r.siid == 6 && r.piid == 1)[0];
+            const deviceLedBrightnessResult = result.filter((r) => r.siid == 13 && r.piid == 2)[0];
+            const deviceChildLockResult = result.filter((r) => r.siid == 8 && r.piid == 1)[0];
+
+            this.updateCapabilityValue("onoff", powerResult.value);
+            this.updateCapabilityValue("measure_humidity", deviceHumidityResult.value);
+            this.updateCapabilityValue("measure_temperature", deviceTemperatureResult.value);
+            this.updateCapabilityValue("zhimi_airpurifier_mb4_mode", "" + deviceModeResult.value);
+            this.updateCapabilityValue("dim", deviceFanLevelResult.value);
+            this.updateCapabilityValue("measure_pm25", +devicePM25Result.value);
+
+            this.setSettings({ led: !!deviceLedBrightnessResult.value });
+            this.setSettings({ buzzer: deviceBuzzerResult.value });
+            this.setSettings({ childLock: deviceChildLockResult.value });
           })
-          .catch((error) => {
-            this.log("Sending commmand 'get_prop' error: ", error);
-          });
+          .catch((error) => this.log("Sending commmand 'get_properties' error: ", error));
 
         const update = this.getSetting("updateTimer") || 60;
         this.updateTimer(update);
@@ -68,7 +90,7 @@ class MiAirPurifier4Lite extends Homey.Device {
         this.setUnavailable(error.message);
         clearInterval(this.updateInterval);
         setTimeout(() => {
-          this.getPurifierStatus();
+          this.getAirPurifierStatus();
         }, 10000);
       });
   }
@@ -77,84 +99,97 @@ class MiAirPurifier4Lite extends Homey.Device {
     clearInterval(this.updateInterval);
     this.updateInterval = setInterval(() => {
       this.device
-        .call("get_prop", ["power", "aqi", "average_aqi", "humidity", "temp_dec", "bright", "mode", "favorite_level", "filter1_life", "use_time", "purify_volume", "led", "volume", "child_lock"])
+        .call("get_properties", params, { retries: 1 })
         .then((result) => {
           if (!this.getAvailable()) {
             this.setAvailable();
           }
-          this.updateCapabilityValue("onoff", result[0] === "on" ? true : false);
-          this.updateCapabilityValue("measure_pm25", parseInt(result[1]));
-          this.updateCapabilityValue("measure_humidity", parseInt(result[3]));
-          this.updateCapabilityValue("measure_temperature", parseInt(result[4] / 10));
-          this.updateCapabilityValue("measure_luminance", parseInt(result[5]));
-          this.updateCapabilityValue("air_purifier_mode", result[6]);
-          this.updateCapabilityValue("dim", parseInt(this.favoriteLevel[result[7]] / 100));
-          this.setSettings({ filter1_life: result[8] + "%" });
-          this.setSettings({ purify_volume: result[10] + " m3" });
-          this.setSettings({ led: result[11] == "on" ? true : false });
-          this.setSettings({ volume: result[12] >= 1 ? true : false });
-          this.setSettings({ childLock: result[13] == "on" ? true : false });
+          const powerResult = result.filter((r) => r.siid == 2 && r.piid == 1)[0];
+          const deviceFaultResult = result.filter((r) => r.siid == 2 && r.piid == 2)[0];
+          const deviceModeResult = result.filter((r) => r.siid == 2 && r.piid == 4)[0];
+          const deviceFanLevelResult = result.filter((r) => r.siid == 9 && r.piid == 11)[0];
+          const devicePM25Result = result.filter((r) => r.siid == 3 && r.piid == 4)[0];
+          const deviceHumidityResult = result.filter((r) => r.siid == 3 && r.piid == 1)[0];
+          const deviceTemperatureResult = result.filter((r) => r.siid == 3 && r.piid == 7)[0];
+          const deviceBuzzerResult = result.filter((r) => r.siid == 6 && r.piid == 1)[0];
+          const deviceLedBrightnessResult = result.filter((r) => r.siid == 13 && r.piid == 2)[0];
+          const deviceChildLockResult = result.filter((r) => r.siid == 8 && r.piid == 1)[0];
+
+          this.updateCapabilityValue("onoff", powerResult.value);
+          this.updateCapabilityValue("measure_humidity", deviceHumidityResult.value);
+          this.updateCapabilityValue("measure_temperature", deviceTemperatureResult.value);
+          this.updateCapabilityValue("zhimi_airpurifier_mb4_mode", "" + deviceModeResult.value);
+          this.updateCapabilityValue("dim", deviceFanLevelResult.value);
+          this.updateCapabilityValue("measure_pm25", +devicePM25Result.value);
+
+          this.setSettings({ led: !!deviceLedBrightnessResult.value });
+          this.setSettings({ buzzer: deviceBuzzerResult.value });
+          this.setSettings({ childLock: deviceChildLockResult.value });
         })
         .catch((error) => {
           this.log("Sending commmand error: ", error);
           this.setUnavailable(error.message);
           clearInterval(this.updateInterval);
           setTimeout(() => {
-            this.getPurifierStatus();
+            this.getAirPurifierStatus();
           }, 1000 * interval);
         });
     }, 1000 * interval);
   }
 
-  updateCapabilityValue(name, value) {
-    if (this.getCapabilityValue(name) != value) {
-      this.setCapabilityValue(name, value)
-        .then(() => this.log("[" + this.data.id + "] [" + name + "] [" + value + "] Capability successfully updated"))
-        .catch((error) => this.log("[" + this.data.id + "] [" + name + "] [" + value + "] Capability not updated because there are errors: " + error.message));
+  updateCapabilityValue(capabilityName, value) {
+    if (this.getCapabilityValue(capabilityName) != value) {
+      this.setCapabilityValue(capabilityName, value)
+        .then(() => {
+          this.log("[" + this.data.id + "] [" + capabilityName + "] [" + value + "] Capability successfully updated");
+        })
+        .catch((error) => {
+          this.log("[" + this.data.id + "] [" + capabilityName + "] [" + value + "] Capability not updated because there are errors: " + error.message);
+        });
     }
   }
 
   onSettings(oldSettings, newSettings, changedKeys, callback) {
     if (changedKeys.includes("updateTimer") || changedKeys.includes("deviceIP") || changedKeys.includes("deviceToken")) {
-      this.getPurifierStatus();
+      this.getAirPurifierStatus();
       callback(null, true);
     }
 
     if (changedKeys.includes("led")) {
       this.device
-        .call("set_led", [newSettings.led ? "on" : "off"])
+        .call("set_properties", [{ siid: 7, piid: 2, value: newSettings.led ? 8 : 0 }], { retries: 1 })
         .then(() => {
           this.log("Sending " + this.getName() + " commmand: " + newSettings.led);
           callback(null, true);
         })
         .catch((error) => {
-          this.log("Sending commmand 'set_led' " + newSettings.led + " error: ", error);
+          this.log("Sending commmand 'set_properties' error: ", error);
           callback(error, false);
         });
     }
 
-    if (changedKeys.includes("volume")) {
+    if (changedKeys.includes("buzzer")) {
       this.device
-        .call("set_volume", [newSettings.volume ? 100 : 0])
+        .call("set_properties", [{ siid: 6, piid: 1, value: newSettings.buzzer }], { retries: 1 })
         .then(() => {
-          this.log("Sending " + this.getName() + " commmand: " + newSettings.volume);
+          this.log("Sending " + this.getName() + " commmand: " + newSettings.buzzer);
           callback(null, true);
         })
         .catch((error) => {
-          this.log("Sending commmand 'newSettings.volume' " + newSettings.volume + " error: ", error);
+          this.log("Sending commmand 'set_properties' error: ", error);
           callback(error, false);
         });
     }
 
     if (changedKeys.includes("childLock")) {
       this.device
-        .call("set_child_lock", [newSettings.childLock ? "on" : "off"])
+        .call("set_properties", [{ siid: 8, piid: 1, value: newSettings.childLock }], { retries: 1 })
         .then(() => {
           this.log("Sending " + this.getName() + " commmand: " + newSettings.childLock);
           callback(null, true);
         })
         .catch((error) => {
-          this.log("Sending commmand 'set_child_lock' " + newSettings.childLock + " error: ", error);
+          this.log("Sending commmand 'set_properties' error: ", error);
           callback(error, false);
         });
     }
@@ -163,52 +198,31 @@ class MiAirPurifier4Lite extends Homey.Device {
   registerOnOffButton(name) {
     this.registerCapabilityListener(name, async (value) => {
       this.device
-        .call("set_power", [value ? "on" : "off"])
-        .then(() => {
-          this.log("Sending " + name + " commmand: " + value);
-          callback(null, true);
-        })
-        .catch((error) => {
-          this.log("Sending commmand 'set_power' " + value + " error: " + error);
-          callback(error, false);
-        });
+        .call("set_properties", [{ siid: 2, piid: 1, value }], { retries: 1 })
+        .then(() => this.log("Sending " + name + " commmand: " + value))
+        .catch((error) => this.log("Sending commmand 'set_properties' error: ", error));
     });
   }
 
-  registerFavoriteLevel(name) {
+  registerFavoriteFanLevel(name) {
     this.registerCapabilityListener(name, async (value) => {
-      let speed = value * 100;
-      if (speed > 0) {
-        this.device
-          .call("set_level_favorite", [this.getFavoriteLevel(speed)])
-          .then(() => {
-            this.log("Sending " + name + " commmand: " + value);
-            callback(null, true);
-          })
-          .catch((error) => {
-            this.log("Sending commmand 'set_level_favorite' " + value + " error: " + error);
-            callback(error, false);
-          });
-      }
+      this.device
+        .call("set_properties", [{ siid: 9, piid: 11, value: Math.ceil(value) }], { retries: 1 })
+        .then(() => this.log("Sending " + name + " commmand: " + Math.ceil(value)))
+        .catch((error) => this.log("Sending commmand 'set_properties' error: ", error));
     });
   }
 
   registerAirPurifierMode(name) {
     this.registerCapabilityListener(name, async (value) => {
       this.device
-        .call("set_mode", [value])
-        .then(() => {
-          this.log("Sending " + name + " commmand: " + value);
-          callback(null, true);
-        })
-        .catch((error) => {
-          this.log("Sending commmand 'set_mode' " + value + " error: " + error);
-          callback(error, false);
-        });
+        .call("set_properties", [{ siid: 2, piid: 4, value: +value }], { retries: 1 })
+        .then(() => this.log("Sending " + name + " commmand: " + value))
+        .catch((error) => this.log("Sending commmand 'set_properties' error: ", error));
     });
   }
 
-  registerPurifierOnAction(name, action) {
+  registerAirPurifierModeAction(name, action) {
     action.registerRunListener(async (args, state) => {
       try {
         miio
@@ -218,13 +232,13 @@ class MiAirPurifier4Lite extends Homey.Device {
           })
           .then((device) => {
             device
-              .call("set_power", ["on"])
+              .call("set_properties", [{ siid: 2, piid: 4, value: +args.modes }], { retries: 1 })
               .then(() => {
-                this.log("Set 'set_power' ON");
+                this.log("Set 'set_properties': ", args.modes);
                 device.destroy();
               })
               .catch((error) => {
-                this.log("Set 'set_power' error: ", error);
+                this.log("Set 'set_properties' error: ", error.message);
                 device.destroy();
               });
           })
@@ -235,108 +249,14 @@ class MiAirPurifier4Lite extends Homey.Device {
         this.log("catch error: " + error);
       }
     });
-  }
-
-  registerPurifierOffAction(name, action) {
-    action.registerRunListener(async (args, state) => {
-      try {
-        miio
-          .device({
-            address: args.device.getSetting("deviceIP"),
-            token: args.device.getSetting("deviceToken"),
-          })
-          .then((device) => {
-            device
-              .call("set_power", ["off"])
-              .then(() => {
-                this.log("Set 'set_power' OFF");
-                device.destroy();
-              })
-              .catch((error) => {
-                this.log("Set 'set_power' error: ", error);
-                device.destroy();
-              });
-          })
-          .catch((error) => {
-            this.log("miio connect error: " + error);
-          });
-      } catch (error) {
-        this.log("catch error: " + error);
-      }
-    });
-  }
-
-  registerPurifierModeAction(name, action) {
-    action.registerRunListener(async (args, state) => {
-      try {
-        miio
-          .device({
-            address: args.device.getSetting("deviceIP"),
-            token: args.device.getSetting("deviceToken"),
-          })
-          .then((device) => {
-            device
-              .call("set_mode", [args.modes])
-              .then(() => {
-                this.log("Set 'set_mode': ", args.modes);
-                device.destroy();
-              })
-              .catch((error) => {
-                this.log("Set 'set_mode' error: ", error);
-                device.destroy();
-              });
-          })
-          .catch((error) => {
-            this.log("miio connect error: " + error);
-          });
-      } catch (error) {
-        this.log("catch error: " + error);
-      }
-    });
-  }
-
-  registerPurifierSpeedAction(name, action) {
-    action.registerRunListener(async (args, state) => {
-      try {
-        miio
-          .device({
-            address: args.device.getSetting("deviceIP"),
-            token: args.device.getSetting("deviceToken"),
-          })
-          .then((device) => {
-            device
-              .call("set_level_favorite", [this.getFavoriteLevel(args.range)])
-              .then(() => {
-                this.log("Set 'set_level_favorite': ", this.getFavoriteLevel(args.range));
-                device.destroy();
-              })
-              .catch((error) => {
-                this.log("Set 'set_level_favorite' error: ", error);
-                device.destroy();
-              });
-          })
-          .catch((error) => {
-            this.log("miio connect error: " + error);
-          });
-      } catch (error) {
-        this.log("catch error: " + error);
-      }
-    });
-  }
-
-  getFavoriteLevel(speed) {
-    for (var i = 1; i < this.favoriteLevel.length; i++) {
-      if (speed > this.favoriteLevel[i - 1] && speed <= this.favoriteLevel[i]) {
-        return i;
-      }
-    }
-
-    return 1;
   }
 
   onDeleted() {
     this.log("Device deleted");
     clearInterval(this.updateInterval);
+    if (typeof this.device !== "undefined") {
+      this.device.destroy();
+    }
   }
 }
 

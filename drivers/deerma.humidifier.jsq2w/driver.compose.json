@@ -6,27 +6,27 @@
   "capabilities": [
     "onoff",
     "dim",
-    "leshow_humidifier_jsq1_mode",
+    "deerma_humidifier_jsq5_fan_level",
+    "measure_temperature",
     "measure_humidity",
-    "measure_water"
+    "alarm_water"
   ],
   "capabilitiesOptions": {
     "onoff": {
       "title": {
-        "en": "Switch Status"
+        "en": "Power"
       }
     },
     "dim": {
       "title": {
-        "en": "Target Humidity"
+        "en": "Target humidity"
       },
       "max": 70,
-      "min": 40,
-      "step": 1
+      "min": 40
     },
-    "measure_water": {
+    "alarm_water": {
       "title": {
-        "en": "Water level"
+        "en": "No water"
       }
     }
   },
@@ -78,7 +78,15 @@
           "type": "checkbox",
           "value": true,
           "label": {
-            "en": "Screen brightness"
+            "en": "LED"
+          }
+        },
+        {
+          "id": "buzzer",
+          "type": "checkbox",
+          "value": true,
+          "label": {
+            "en": "Buzzer"
           }
         }
       ]

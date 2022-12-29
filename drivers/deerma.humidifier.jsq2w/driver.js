@@ -4,10 +4,7 @@ const miio = require("miio");
 class XiaoMiHumidifier2Lite extends Homey.Driver {
   onInit() {
     this.actions = {
-      humidifierOn: new Homey.FlowCardAction("humidifier_on").register(),
-      humidifierOff: new Homey.FlowCardAction("humidifier_off").register(),
-      humidifierMode: new Homey.FlowCardAction("humidifier_pro_mode").register(),
-      humidifierSpeed: new Homey.FlowCardAction("humidifier_pro_speed").register(),
+      fanLevel: new Homey.FlowCardAction("deerma_humidifier_jsq5_fan_level").register(),
     };
   }
 
@@ -27,31 +24,33 @@ class XiaoMiHumidifier2Lite extends Homey.Driver {
             .then((value) => {
               if (value.model == this.data.model) {
                 pairingDevice.data.id = value.mac;
-                const params = [{ siid: 2, piid: 6 }];
+                const params = [{ siid: 2, piid: 1 }];
                 device
                   .call("get_properties", params, {
                     retries: 1,
                   })
                   .then((result) => {
-                    let deviceResult = {
-                      state: result[0].value,
-                    };
-                    pairingDevice.settings.deviceIP = this.data.ip;
-                    pairingDevice.settings.deviceToken = this.data.token;
-                    if (this.data.timer < 5) {
-                      pairingDevice.settings.updateTimer = 5;
-                    } else if (this.data.timer > 3600) {
-                      pairingDevice.settings.updateTimer = 3600;
-                    } else {
-                      pairingDevice.settings.updateTimer = parseInt(this.data.timer);
-                    }
+                    if (result && result[0].code === 0) {
+                      let resultData = {
+                        state: result[0],
+                      };
+                      pairingDevice.settings.deviceIP = this.data.ip;
+                      pairingDevice.settings.deviceToken = this.data.token;
+                      if (this.data.timer < 5) {
+                        pairingDevice.settings.updateTimer = 5;
+                      } else if (this.data.timer > 3600) {
+                        pairingDevice.settings.updateTimer = 3600;
+                      } else {
+                        pairingDevice.settings.updateTimer = parseInt(this.data.timer);
+                      }
 
-                    callback(null, deviceResult);
+                      callback(null, resultData);
+                    }
                   })
                   .catch((error) => callback(null, error));
               } else {
                 let result = {
-                  notDevice: "It is not XiaoMi Humidifier Pro!!!",
+                  notDevice: "It is not Xiaomi Humidifier 2 Lite",
                 };
                 pairingDevice.data.id = null;
                 callback(null, result);
