@@ -3,17 +3,21 @@ const miio = require("miio");
 
 class XiaoMiHumidifier2Lite extends Homey.Driver {
   async onInit() {
+    if (process.env.DEBUG === '1') {
+			require('inspector').open(9222, '0.0.0.0', true);
+		}
+
     this.log('MyDriver has been initialized');
-    const fanLevel = this.homey.flow.getActionCard("zhimi_airpurifier_mb4_mode");
+    const fanLevel = this.homey.flow.getActionCard("deerma_humidifier_jsq5_fan_level");
   }
 
-  onPair(socket) {
+  async onPair(session) {
     let pairingDevice = {};
     pairingDevice.name = "Xiaomi Humidifier 2 Lite";
     pairingDevice.settings = {};
     pairingDevice.data = {};
 
-    socket.on("connect", (data, callback) => {
+    session.setHandler("connect", async function(data, callback) {
       this.data = data;
       miio
         .device({ address: data.ip, token: data.token })
@@ -69,7 +73,7 @@ class XiaoMiHumidifier2Lite extends Homey.Driver {
         });
     });
 
-    socket.on("done", (data, callback) => {
+    session.setHandler("done", (data, callback) => {
       callback(null, pairingDevice);
     });
   }

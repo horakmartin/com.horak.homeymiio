@@ -1,6 +1,6 @@
 {
   "name": {
-    "en": "XiaoMi Humidifier 2 Lite"
+    "en": "Xiaomi Humidifier 2 Lite"
   },
   "class": "sensor",
   "capabilities": [
@@ -34,7 +34,7 @@
     {
       "type": "group",
       "label": {
-        "en": "XiaoMi Humidifier 2 Lite settings"
+        "en": "Xiaomi Humidifier 2 Lite settings"
       },
       "children": [
         {

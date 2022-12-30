@@ -2,18 +2,22 @@ const Homey = require("homey");
 const miio = require("miio");
 
 const params = [
-  { siid: 2, piid: 1 },
-  { siid: 2, piid: 2 },
-  { siid: 2, piid: 5 },
-  { siid: 2, piid: 6 },
-  { siid: 3, piid: 1 },
-  { siid: 3, piid: 7 },
-  { siid: 5, piid: 1 },
-  { siid: 6, piid: 1 },
+  { siid: 2, piid: 1 }, //onoff
+  { siid: 2, piid: 2 }, //fault
+  { siid: 2, piid: 5 }, //fan level
+  { siid: 2, piid: 6 }, //target humidity
+  { siid: 3, piid: 1 }, //relative-humidity
+  { siid: 3, piid: 7 }, //temperature
+  { siid: 5, piid: 1 }, //alarm
+  { siid: 6, piid: 1 }, //light
 ];
 
 class XiaoMiHumidifier2Lite extends Homey.Device {
   async onInit() {
+    if (process.env.DEBUG === '1') {
+			require('inspector').open(9222, '0.0.0.0', true);
+		}
+
     this.initialize = this.initialize.bind(this);
     this.driver = this.homey.drivers.getDriver("deerma.humidifier.jsq2w");
     this.data = this.getData();

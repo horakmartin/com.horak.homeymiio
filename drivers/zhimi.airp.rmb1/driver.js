@@ -7,13 +7,13 @@ class MiAirPurifier4Lite extends Homey.Driver {
     const airPurifierMode = this.homey.flow.getActionCard("zhimi_airpurifier_mb4_mode");
   }
 
-  onPair(socket) {
+  async onPair(session) {
     let pairingDevice = {};
     pairingDevice.name = "Xiaomi Smart Air Purifier 4 Lite";
     pairingDevice.settings = {};
     pairingDevice.data = {};
 
-    socket.on("connect", (data, callback) => {
+    session.setHandler("connect", async function(data, callback) {
       this.data = data;
       miio
         .device({ address: data.ip, token: data.token })
@@ -69,7 +69,7 @@ class MiAirPurifier4Lite extends Homey.Driver {
         });
     });
 
-    socket.on("done", (data, callback) => {
+    session.setHandler("done", (data, callback) => {
       callback(null, pairingDevice);
     });
   }
