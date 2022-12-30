@@ -3,11 +3,11 @@ const miio = require("miio");
 
 class XiaoMiHumidifier2Lite extends Homey.Driver {
   async onInit() {
-    if (process.env.DEBUG === '1') {
-			require('inspector').open(9222, '0.0.0.0', true);
-		}
+    //if (process.env.DEBUG === '1') {
+			require('inspector').open(9223, '0.0.0.0', true);
+		//}
 
-    this.log('MyDriver has been initialized');
+    this.log('Driver derma.humidifier.jsq2w has been initialized');
     const fanLevel = this.homey.flow.getActionCard("deerma_humidifier_jsq5_fan_level");
   }
 
@@ -17,11 +17,11 @@ class XiaoMiHumidifier2Lite extends Homey.Driver {
     pairingDevice.settings = {};
     pairingDevice.data = {};
 
-    session.setHandler("connect", async function(data, callback) {
+    session.setHandler("connect", async (data) => {
       this.data = data;
       miio
         .device({ address: data.ip, token: data.token })
-        .then((device) => {
+        .then((device) => { 
           device
             .call("miIO.info", [])
             .then((value) => {
@@ -47,34 +47,34 @@ class XiaoMiHumidifier2Lite extends Homey.Driver {
                         pairingDevice.settings.updateTimer = parseInt(this.data.timer);
                       }
 
-                      callback(null, resultData);
+                      return resultData;
                     }
                   })
-                  .catch((error) => callback(null, error));
+                  //.catch((error) => {return error});
               } else {
                 let result = {
                   notDevice: "It is not Xiaomi Humidifier 2 Lite",
                 };
                 pairingDevice.data.id = null;
-                callback(null, result);
+                return result;
               }
             })
-            .catch((error) => callback(null, error));
+            //.catch((error) => {return error});
         })
-        .catch((error) => {
+        /*.catch((error) => {
           if (error == "Error: Could not connect to device, handshake timeout") {
-            callback(null, "timeout");
+            return "timeout";
           }
           if (error == "Error: Could not connect to device, token might be wrong") {
-            callback(null, "wrongToken");
+            return "wrongToken";
           } else {
-            callback(error, "Error");
+            return "Error";
           }
-        });
+        });*/
     });
 
-    session.setHandler("done", (data, callback) => {
-      callback(null, pairingDevice);
+    session.setHandler("done", async (data) => {
+      return pairingDevice;
     });
   }
 }

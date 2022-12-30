@@ -14,9 +14,11 @@ const params = [
 
 class XiaoMiHumidifier2Lite extends Homey.Device {
   async onInit() {
-    if (process.env.DEBUG === '1') {
-			require('inspector').open(9222, '0.0.0.0', true);
-		}
+    //if (process.env.DEBUG === '1') {
+		//	require('inspector').open(9222, '0.0.0.0', true);
+		//}
+
+    this.log('Device derma.humidifier.jsq2w has been initialized');
 
     this.initialize = this.initialize.bind(this);
     this.driver = this.homey.drivers.getDriver("deerma.humidifier.jsq2w");

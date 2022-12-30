@@ -19,9 +19,9 @@ const params = [
 
 class MiAirPurifier4Lite extends Homey.Device {
   async onInit() {
-    if (process.env.DEBUG === '1') {
-			require('inspector').open(9222, '0.0.0.0', true);
-		}
+    //if (process.env.DEBUG === '1') {
+		//	require('inspector').open(9222, '0.0.0.0', true);
+		//}
 
     this.log('MyDevice has been initialized');
 

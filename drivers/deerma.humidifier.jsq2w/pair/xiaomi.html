@@ -20,8 +20,8 @@
 
         let data = { ip: deviceIP.value, token: deviceToken.value, model: "deerma.humidifier.jsq2w", timer: deviceUpdateTime.value || 60 };
         Homey.emit("connect", data, (error, result) => {
-          console.log(error);
-          console.log(result);
+          console.log('error je: ' + error);
+          console.log('result je: ' + result);
 
           if (error) {
             alert.classList.remove("alert-light");
