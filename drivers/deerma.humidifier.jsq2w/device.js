@@ -29,7 +29,7 @@ class XiaoMiHumidifier2Lite extends Homey.Device {
 
   registerActions() {
     const { actions } = this.driver;
-    this.registerFanLevelAction("deerma_humidifier_jsq5_fan_level", actions.fanLevel);
+    this.homey.flow.getActionCard("deerma_humidifier_jsq5_fan_level");
   }
 
   registerCapabilities() {

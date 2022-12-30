@@ -40,7 +40,7 @@ class MiAirPurifier4Lite extends Homey.Device {
 
   registerActions() {
     const { actions } = this.driver;
-    this.registerAirPurifierModeAction("zhimi_airpurifier_mb4_mode", actions.airPurifierMode);
+    this.homey.flow.getActionCard("zhimi_airpurifier_mb4_mode");
   }
 
   registerCapabilities() {
