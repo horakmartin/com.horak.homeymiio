@@ -2,10 +2,9 @@ const Homey = require("homey");
 const miio = require("miio");
 
 class MiAirPurifier4Lite extends Homey.Driver {
-  onInit() {
-    this.actions = {
-      airPurifierMode: new Homey.FlowCardAction("zhimi_airpurifier_mb4_mode").register(),
-    };
+  async onInit() {
+    this.log('MyDriver has been initialized');
+    const airPurifierMode = this.homey.flow.getActionCard("zhimi_airpurifier_mb4_mode");
   }
 
   onPair(socket) {

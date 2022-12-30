@@ -23,8 +23,10 @@ class MiAirPurifier4Lite extends Homey.Device {
 			require('inspector').open(9222, '0.0.0.0', true);
 		}
 
+    this.log('MyDevice has been initialized');
+
     this.initialize = this.initialize.bind(this);
-    this.driver = this.getDriver();
+    this.driver = this.homey.drivers.getDriver("zhimi.airp.rmb1");
     this.data = this.getData();
     this.initialize();
     this.log("Mi Homey device init | name: " + this.getName() + " - class: " + this.getClass() + " - data: " + JSON.stringify(this.data));

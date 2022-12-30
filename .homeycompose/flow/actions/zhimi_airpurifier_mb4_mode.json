@@ -6,7 +6,7 @@
     {
       "name": "device",
       "type": "device",
-      "filter": "driver_id=zhimi.airpurifier.mb4"
+      "filter": "driver_id=zhimi.airpurifier.mb4|zhimi.airp.rmb1"
     },
     {
       "type": "dropdown",

@@ -15,7 +15,7 @@ const params = [
 class XiaoMiHumidifier2Lite extends Homey.Device {
   async onInit() {
     this.initialize = this.initialize.bind(this);
-    this.driver = this.getDriver();
+    this.driver = this.homey.drivers.getDriver("deerma.humidifier.jsq2w");
     this.data = this.getData();
     this.initialize();
     this.log("Mi Homey device init | name: " + this.getName() + " - class: " + this.getClass() + " - data: " + JSON.stringify(this.data));
