@@ -3,6 +3,9 @@
 This is continuous of Maxmudjon's work. 
 For now only few devices.
 
+You need to know the IP address and the token.
+<a href="https://github.com/Maxmudjon/com.xiaomi-miio/blob/master/docs/obtain_token.md">Here</a> is guid how to obtain it.
+
 ## Supported devices:
 
 <ul>

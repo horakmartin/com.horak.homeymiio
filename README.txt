@@ -1,0 +1,1 @@
+With the Homey Miiot you can control Xiaomi devices from Homey app. This is the start, only few devices are supported. You need to know the device IP and the token.
