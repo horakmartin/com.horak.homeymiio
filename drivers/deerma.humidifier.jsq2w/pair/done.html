@@ -10,7 +10,7 @@
       Homey.setNavigationClose();
       return;
     }
-    Homey.addDevice(result, (err, res) => {
+    Homey.createDevice(result, (err, res) => {
       if (err) {
         var alertTitle = document.getElementsByClassName(`statusAlertShowDuplicate`);
         var alertErrorTitle = document.getElementsByClassName(`statusAlertShowError`);

@@ -13,64 +13,56 @@ class MiAirPurifier4Lite extends Homey.Driver {
     pairingDevice.settings = {};
     pairingDevice.data = {};
 
-    session.setHandler("connect", async function(data, callback) {
-      this.data = data;
-      miio
-        .device({ address: data.ip, token: data.token })
-        .then((device) => {
-          device
-            .call("miIO.info", [])
-            .then((value) => {
-              if (value.model == this.data.model) {
-                pairingDevice.data.id = value.mac;
-                const params = [{ siid: 2, piid: 1 }];
-                device
-                  .call("get_properties", params, {
-                    retries: 1,
-                  })
-                  .then((result) => {
-                    if (result && result[0].code === 0) {
-                      let resultData = {
-                        state: result[0],
-                      };
-                      pairingDevice.settings.deviceIP = this.data.ip;
-                      pairingDevice.settings.deviceToken = this.data.token;
-                      if (this.data.timer < 5) {
-                        pairingDevice.settings.updateTimer = 5;
-                      } else if (this.data.timer > 3600) {
-                        pairingDevice.settings.updateTimer = 3600;
-                      } else {
-                        pairingDevice.settings.updateTimer = parseInt(this.data.timer);
-                      }
+    session.setHandler("connect", async (data) => {
+      const params = [{ siid: 2, piid: 1 }];
 
-                      callback(null, resultData);
-                    }
-                  })
-                  .catch((error) => callback(null, error));
-              } else {
-                let result = {
-                  notDevice: "It is not Xiaomi Smart Air Purifier 4 Lite",
-                };
-                pairingDevice.data.id = null;
-                callback(null, result);
-              }
-            })
-            .catch((error) => callback(null, error));
-        })
-        .catch((error) => {
+      this.data = data;
+      let device = await miio.device({address: data.ip, token: data.token});
+      let device_info = await device.call("miIO.info", []);
+      let device_prop = await device.call("get_properties", params, {retires: 1,});
+      let result = [];
+
+      if (device_info.model == this.data.model) {
+        pairingDevice.data.id = device_info.mac;
+        
+        if (device_prop && device_prop[0].code === 0) 
+          {
+            let resultData = {
+              state: device_prop[0],
+            };
+            pairingDevice.settings.deviceIP = this.data.ip;
+            pairingDevice.settings.deviceToken = this.data.token;
+            if (this.data.timer < 5) {
+              pairingDevice.settings.updateTimer = 5;
+            } else if (this.data.timer > 3600) {
+              pairingDevice.settings.updateTimer = 3600;
+            } else {
+              pairingDevice.settings.updateTimer = parseInt(this.data.timer);
+            }
+
+            return resultData;
+          }
+      
           if (error == "Error: Could not connect to device, handshake timeout") {
-            callback(null, "timeout");
+            return "timeout";
           }
           if (error == "Error: Could not connect to device, token might be wrong") {
-            callback(null, "wrongToken");
+            return "wrongToken";
           } else {
-            callback(error, "Error");
-          }
-        });
+            return error;
+          } 
+
+      } else {
+        let result = {
+          notDevice: "It is not Xiaomi Smart Air Purifier 4 Lite",
+        };
+        pairingDevice.data.id = null;
+        return result;
+      };
     });
 
-    session.setHandler("done", (data, callback) => {
-      callback(null, pairingDevice);
+    session.setHandler("done", async (data) => {
+      return pairingDevice;
     });
   }
 }
