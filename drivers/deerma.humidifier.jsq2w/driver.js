@@ -4,7 +4,7 @@ const miio = require("miio");
 class XiaoMiHumidifier2Lite extends Homey.Driver {
   async onInit() {
     //if (process.env.DEBUG === '1') {
-			require('inspector').open(9223, '0.0.0.0', true);
+		//	require('inspector').open(9223, '0.0.0.0', true);
 		//}
 
     this.log('Driver derma.humidifier.jsq2w has been initialized');

@@ -20,7 +20,7 @@ const params = [
 class MiAirPurifier4Lite extends Homey.Device {
   async onInit() {
     //if (process.env.DEBUG === '1') {
-		//	require('inspector').open(9222, '0.0.0.0', true);
+			require('inspector').open(9223, '0.0.0.0', true);
 		//}
 
     this.log('MyDevice has been initialized');
@@ -152,47 +152,47 @@ class MiAirPurifier4Lite extends Homey.Device {
   }
 
   onSettings(oldSettings, newSettings, changedKeys, callback) {
-    if (changedKeys.includes("updateTimer") || changedKeys.includes("deviceIP") || changedKeys.includes("deviceToken")) {
+    if (oldSettings.changedKeys.includes("updateTimer") || oldSettings.changedKeys.includes("deviceIP") || oldSettings.changedKeys.includes("deviceToken")) {
       this.getAirPurifierStatus();
-      callback(null, true);
+      return true;
     }
 
-    if (changedKeys.includes("led")) {
+    if (oldSettings.changedKeys.includes("led")) {
       this.device
-        .call("set_properties", [{ siid: 7, piid: 2, value: newSettings.led ? 8 : 0 }], { retries: 1 })
+        .call("set_properties", [{ siid: 7, piid: 2, value: oldSettings.newSettings.led ? 8 : 0 }], { retries: 1 })
         .then(() => {
-          this.log("Sending " + this.getName() + " commmand: " + newSettings.led);
-          callback(null, true);
+          this.log("Sending " + this.getName() + " commmand: " + oldSettings.newSettings.led);
+          return true;
         })
         .catch((error) => {
           this.log("Sending commmand 'set_properties' error: ", error);
-          callback(error, false);
+          return(error, false);
         });
     }
 
-    if (changedKeys.includes("buzzer")) {
+    if (oldSettings.changedKeys.includes("buzzer")) {
       this.device
-        .call("set_properties", [{ siid: 6, piid: 1, value: newSettings.buzzer }], { retries: 1 })
+        .call("set_properties", [{ siid: 6, piid: 1, value: oldSettings.newSettings.buzzer }], { retries: 1 })
         .then(() => {
-          this.log("Sending " + this.getName() + " commmand: " + newSettings.buzzer);
-          callback(null, true);
+          this.log("Sending " + this.getName() + " commmand: " + oldSettings.newSettings.buzzer);
+          return true;
         })
         .catch((error) => {
           this.log("Sending commmand 'set_properties' error: ", error);
-          callback(error, false);
+          return(error, false);
         });
     }
 
-    if (changedKeys.includes("childLock")) {
+    if (oldSettings.changedKeys.includes("childLock")) {
       this.device
-        .call("set_properties", [{ siid: 8, piid: 1, value: newSettings.childLock }], { retries: 1 })
+        .call("set_properties", [{ siid: 8, piid: 1, value: oldSettings.newSettings.childLock }], { retries: 1 })
         .then(() => {
-          this.log("Sending " + this.getName() + " commmand: " + newSettings.childLock);
-          callback(null, true);
+          this.log("Sending " + this.getName() + " commmand: " + oldSettings.newSettings.childLock);
+          return true;
         })
         .catch((error) => {
           this.log("Sending commmand 'set_properties' error: ", error);
-          callback(error, false);
+          return(error, false);
         });
     }
   }
