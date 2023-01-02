@@ -853,10 +853,16 @@
           "en": "Set air fresh mode",
           "nl": ""
         },
+        "titleFormatted": {
+          "en": "Set air fresh [[modes]] for device"
+        },
         "args": [
           {
             "name": "device",
             "type": "device",
+            "title": {
+              "en": "Device"
+            },
             "filter": "driver_id=zhimi_airfresh_va2|zhimi_airfresh_va4"
           },
           {
@@ -943,6 +949,9 @@
           "en": "Set air fresh speed",
           "nl": ""
         },
+        "titleFormatted": {
+          "en": "Set air fresh [[speed]] for device"
+        },
         "args": [
           {
             "name": "device",
@@ -966,6 +975,9 @@
         "title": {
           "en": "Ambilight brightness"
         },
+        "titleFormatted": {
+          "en": "Set ambilight brightness [[level]] for device"
+        },
         "args": [
           {
             "name": "device",
@@ -988,6 +1000,9 @@
       {
         "title": {
           "en": "Custom radio"
+        },
+        "titleFormatted": {
+          "en": "Custom radio [[id]] [[url]] [[volume]]"
         },
         "args": [
           {
@@ -1026,6 +1041,9 @@
         "title": {
           "en": "Set humidifier mode"
         },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1056,6 +1074,9 @@
       {
         "title": {
           "en": "Set humidifier mode"
+        },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
         },
         "args": [
           {
@@ -1093,6 +1114,9 @@
       {
         "title": {
           "en": "Set fan level"
+        },
+        "titleFormatted": {
+          "en": "Set fan [[modes]]"
         },
         "args": [
           {
@@ -1137,6 +1161,9 @@
         "title": {
           "en": "Eyecare scenes"
         },
+        "titleFormatted": {
+          "en": "Set eyecare [[scene]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1173,6 +1200,9 @@
       {
         "title": {
           "en": "Favorite Flows"
+        },
+        "titleFormatted": {
+          "en": "Favorite [[favoriteFlowID]]"
         },
         "args": [
           {
@@ -1216,6 +1246,9 @@
       {
         "title": {
           "en": "Favorite Flows"
+        },
+        "titleFormatted": {
+          "en": "Favorite [[favoriteFlowID]]"
         },
         "args": [
           {
@@ -1338,6 +1371,9 @@
         "title": {
           "en": "Favorite Flows"
         },
+        "titleFormatted": {
+          "en": "Favorite [[favoriteFlowID]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1380,6 +1416,9 @@
       {
         "title": {
           "en": "Set humidifier mode"
+        },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
         },
         "args": [
           {
@@ -1424,6 +1463,9 @@
         "title": {
           "en": "Set humidifier mode"
         },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1467,6 +1509,9 @@
         "title": {
           "en": "Set humidifier mode"
         },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1509,6 +1554,9 @@
       {
         "title": {
           "en": "Set humidifier mode"
+        },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
         },
         "args": [
           {
@@ -1573,6 +1621,9 @@
         "title": {
           "en": "Set humidifier mode"
         },
+        "titleFormatted": {
+          "en": "Set humidifier [[modes]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1609,6 +1660,9 @@
       {
         "title": {
           "en": "Set humidifier speed"
+        },
+        "titleFormatted": {
+          "en": "Set humidifier [[speed]]"
         },
         "args": [
           {
@@ -1672,6 +1726,9 @@
         "title": {
           "en": "Auto Adjust Color Temperature"
         },
+        "titleFormatted": {
+          "en": "Auto adjust color [[ac]]"
+        },
         "args": [
           {
             "name": "device",
@@ -1702,6 +1759,9 @@
       {
         "title": {
           "en": "Scenes"
+        },
+        "titleFormatted": {
+          "en": "Set [[scene]]"
         },
         "args": [
           {
@@ -1745,6 +1805,9 @@
       {
         "title": {
           "en": "Favorite radio lists"
+        },
+        "titleFormatted": {
+          "en": "Select [[favoriteID]] with [[volume]]"
         },
         "args": [
           {
@@ -1907,6 +1970,9 @@
       {
         "title": {
           "en": "Play tone"
+        },
+        "titleFormatted": {
+          "en": "Play [[toneID]] with [[volume]]"
         },
         "args": [
           {
@@ -2133,6 +2199,9 @@
         "title": {
           "en": "Set purifier mode"
         },
+        "titleFormatted": {
+          "en": "Set purifier [[modes]]"
+        },
         "args": [
           {
             "name": "device",
@@ -2176,6 +2245,9 @@
         "title": {
           "en": "Set purifier speed"
         },
+        "titleFormatted": {
+          "en": "Set purifier [[speed]]"
+        },
         "args": [
           {
             "name": "device",
@@ -2198,6 +2270,9 @@
       {
         "title": {
           "en": "Set purifier mode"
+        },
+        "titleFormatted": {
+          "en": "Set purifier [[modes]]"
         },
         "args": [
           {
@@ -2262,6 +2337,9 @@
         "title": {
           "en": "Set purifier speed"
         },
+        "titleFormatted": {
+          "en": "Set purifier [[speed]]"
+        },
         "args": [
           {
             "name": "device",
@@ -2324,6 +2402,9 @@
         "title": {
           "en": "Send IR code"
         },
+        "titleFormatted": {
+          "en": "Send IR [[code]]"
+        },
         "args": [
           {
             "name": "code",
@@ -2343,6 +2424,9 @@
       {
         "title": {
           "en": "Smooth on/off/toggle light"
+        },
+        "titleFormatted": {
+          "en": "Smooth [[smoothMode]] light with [[smoothTime]]"
         },
         "args": [
           {
@@ -2388,6 +2472,9 @@
         "title": {
           "en": "Send vacuum cleaner to target"
         },
+        "titleFormatted": {
+          "en": "Send to target [[X]] [[Y]]"
+        },
         "args": [
           {
             "name": "X",
@@ -2415,6 +2502,9 @@
         "title": {
           "en": "Start room cleaning"
         },
+        "titleFormatted": {
+          "en": "Start [[rooms]] cleaning"
+        },
         "args": [
           {
             "name": "rooms",
@@ -2435,6 +2525,9 @@
         "title": {
           "en": "Start zone cleaning"
         },
+        "titleFormatted": {
+          "en": "Start [[zones]] cleaning"
+        },
         "args": [
           {
             "name": "zones",
@@ -2454,6 +2547,9 @@
       {
         "title": {
           "en": "Set night mode"
+        },
+        "titleFormatted": {
+          "en": "Set night [[modes]] with [[smoothTime]]"
         },
         "args": [
           {
@@ -2499,6 +2595,9 @@
         "title": {
           "en": "Set air purifier mode"
         },
+        "titleFormatted": {
+          "en": "Set air purifier [[modes]]"
+        },
         "args": [
           {
             "name": "device",
@@ -2536,6 +2635,9 @@
         "title": {
           "en": "Set horizontal angle"
         },
+        "titleFormatted": {
+          "en": "Set horizontal [[angle]]"
+        },
         "args": [
           {
             "name": "device",
@@ -2555,6 +2657,9 @@
       {
         "title": {
           "en": "Set fan mode"
+        },
+        "titleFormatted": {
+          "en": "Set fan [[modes]]"
         },
         "args": [
           {

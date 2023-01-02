@@ -2,6 +2,9 @@
   "title": {
     "en": "Set humidifier mode"
   },
+  "titleFormatted": {
+    "en": "Set humidifier [[modes]]"
+  },
   "args": [
     {
       "name": "device",

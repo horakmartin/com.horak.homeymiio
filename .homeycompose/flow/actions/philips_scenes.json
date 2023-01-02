@@ -2,6 +2,9 @@
   "title": {
     "en": "Scenes"
   },
+  "titleFormatted": {
+    "en": "Set [[scene]]"
+  },
   "args": [
     {
       "name": "device",

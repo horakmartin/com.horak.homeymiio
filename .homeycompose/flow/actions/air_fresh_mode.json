@@ -3,10 +3,16 @@
     "en": "Set air fresh mode",
     "nl": ""
   },
+  "titleFormatted": {
+    "en": "Set air fresh [[modes]] for device"
+  },
   "args": [
     {
       "name": "device",
       "type": "device",
+      "title": {
+        "en" : "Device"
+      },
       "filter": "driver_id=zhimi_airfresh_va2|zhimi_airfresh_va4"
     },
     {

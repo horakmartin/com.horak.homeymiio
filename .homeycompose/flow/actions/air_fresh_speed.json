@@ -3,6 +3,9 @@
     "en": "Set air fresh speed",
     "nl": ""
   },
+  "titleFormatted": {
+    "en": "Set air fresh [[speed]] for device"
+  },
   "args": [
     {
       "name": "device",

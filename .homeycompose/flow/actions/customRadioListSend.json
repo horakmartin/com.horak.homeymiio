@@ -2,6 +2,9 @@
   "title": {
     "en": "Custom radio"
   },
+  "titleFormatted": {
+    "en": "Custom radio [[id]] [[url]] [[volume]]"
+  },
   "args": [
     {
       "name": "id",

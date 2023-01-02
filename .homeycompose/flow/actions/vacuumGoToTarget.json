@@ -2,6 +2,9 @@
   "title": {
     "en": "Send vacuum cleaner to target"
   },
+  "titleFormatted": {
+    "en": "Send to target [[X]] [[Y]]"
+  },
   "args": [
     {
       "name": "X",

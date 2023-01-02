@@ -2,6 +2,9 @@
   "title": {
     "en": "Smooth on/off/toggle light"
   },
+  "titleFormatted": {
+    "en": "Smooth [[smoothMode]] light with [[smoothTime]]"
+  },
   "args": [
     {
       "type": "dropdown",

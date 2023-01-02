@@ -2,6 +2,9 @@
   "title": {
     "en": "Set air purifier mode"
   },
+  "titleFormatted": {
+    "en": "Set air purifier [[modes]]"
+  },
   "args": [
     {
       "name": "device",

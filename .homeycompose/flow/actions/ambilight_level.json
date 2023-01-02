@@ -2,6 +2,9 @@
   "title": {
     "en": "Ambilight brightness"
   },
+  "titleFormatted": {
+    "en": "Set ambilight brightness [[level]] for device"
+  },
   "args": [
     {
       "name": "device",

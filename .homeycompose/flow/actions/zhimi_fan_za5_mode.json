@@ -2,6 +2,9 @@
   "title": {
     "en": "Set fan mode"
   },
+  "titleFormatted": {
+    "en": "Set fan [[modes]]"
+  },
   "args": [
     {
       "name": "device",
