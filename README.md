@@ -15,6 +15,9 @@ You need to know the IP address and the token.
 
 ## Version logs
 
+### 1.0.1 (02.01.2022)
+1. Minor fixes
+
 ### 1.0.0 (29.12.2022)
 
 1. Add Xiaomi Smart Air Purifier 4 Lite
