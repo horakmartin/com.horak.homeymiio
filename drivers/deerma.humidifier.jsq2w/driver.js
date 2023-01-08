@@ -46,8 +46,15 @@ class XiaoMiHumidifier2Lite extends Homey.Driver {
 
             return resultData;
           }
-      
-        return error;
+          
+          if (error == "Error: Could not connect to device, handshake timeout") {
+            return "timeout";
+          }
+          if (error == "Error: Could not connect to device, token might be wrong") {
+            return "wrongToken";
+          } else {
+          return error;
+          };
       } else {
         let result = {
           notDevice: "It is not Xiaomi Humidifier 2 Lite",
@@ -56,16 +63,8 @@ class XiaoMiHumidifier2Lite extends Homey.Driver {
         return result;
       }
         
-      /*
-      if (error == "Error: Could not connect to device, handshake timeout") {
-        return "timeout";
-      }
-      if (error == "Error: Could not connect to device, token might be wrong") {
-        return "wrongToken";
-      } else {
-        return "Error";
-      }
-      */
+      
+      
  
     });
 
